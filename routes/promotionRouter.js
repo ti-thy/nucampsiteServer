@@ -1,47 +1,49 @@
 const express = require('express');
-const PromotionRouter = express.Router();
-const Promotion = require('../models/Promotion');
+const Promotion = require('../models/promotion');
+const authenticate = require('../authenticate');
 
-PromotionRouter.route('/')
+const promotionRouter = express.Router();
+
+promotionRouter.route('/')
 .get((req, res, next) => {
     Promotion.find()
-    .then(Promotions => res.status(200).json(Promotions))
+    .then(promotions => res.status(200).json(promotions))
     .catch(err => next(err))
 })
-.post((req, res, next) => {
+.post(authenticate.verifyUser, (req, res, next) => {
     Promotion.create(req.body)
-    .then(Promotion => res.status(200).json(Promotion))
+    .then(promotion => res.status(200).json(promotion))
     .catch(err => next(err))
 })
-.put((req, res) => {
+.put(authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
-    res.end('PUT operation not supported on /Promotions');
+    res.end('PUT operation not supported on /promotions');
 })
-.delete((req, res, next) => {
+.delete(authenticate.verifyUser, (req, res, next) => {
     Promotion.deleteMany()
-    .then(Promotions => res.status(200).json(Promotions))
+    .then(promotions => res.status(200).json(promotions))
     .catch(err => next(err))
 });
 
-PromotionRouter.route('/:PromotionId')
+promotionRouter.route('/:promotionId')
 .get((req, res, next) => {
-    Promotion.findById(req.params.PromotionId)
-    .then(Promotion => res.status(200).json(Promotion))
+    Promotion.findById(req.params.promotionId)
+    .then(promotion => res.status(200).json(promotion))
     .catch(err => next(err))
 })
-.post((req, res) => {
-  res.statusCode = 403;
-    res.end(`POST operation not supported on /Promotions/${req.params.PromotionId}`);
+.post(authenticate.verifyUser, (req, res) => {
+    res.statusCode = 403;
+    res.end(`POST operation not supported on /promotions/${req.params.promotionId}`);
 })
-.put((req, res, next) => {
-    Promotion.findByIdAndUpdate(req.params.PromotionId, req.body, { new: true })
-    .then(Promotion => res.status(200).json(Promotion))
+.put(authenticate.verifyUser, (req, res, next) => {
+    Promotion.findByIdAndUpdate(req.params.promotionId, req.body, { new: true })
+    .then(promotion => res.status(200).json(promotion))
     .catch(err => next(err))
 })
-.delete((req, res, next) => {
-    Promotion.findByIdAndDelete(req.params.PromotionId)
-    .then(Promotion => res.status(200).json(Promotion))
+.delete(authenticate.verifyUser, (req, res, next) => {
+    Promotion.findByIdAndDelete(req.params.promotionId)
+    .then(promotion => res.status(200).json(promotion))
     .catch(err => next(err))
 });
 
-module.exports = PromotionRouter;
+module.exports = promotionRouter;
